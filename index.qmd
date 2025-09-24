@@ -1,11 +1,10 @@
 ---
-title: "Emma6547.github.io"
+title: "Emma's Site"
+about:
+  template: jolla
+  links:
+    - text: GitHub
+      href: https://github.com/Emma6547
 ---
 
-This is a Quarto website.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
-```
+Hi there! This is my first Quarto website, on which you can find some data visualizations I did.
