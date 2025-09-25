@@ -1,0 +1,50 @@
+---
+title: "Musicians in the US"
+description: |
+  Analysis of Artists in the USA data from TidyTuesday
+author: Emma N.
+date: September 24, 2025
+format: 
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+
+execute: 
+  warning: false
+  message: false
+---
+
+This data is from TidyTuesday and is sourced from the National Endowment for the Arts. It gives state-level estimates for the total number of artists and for each individual type of artist in the workforce, covering 2015-2019. This analysis examines the total number of workers in the music industry specifically (musicians, music directors, and composers) and compares the totals across races.
+
+```{r}
+
+library(tidyverse)
+
+tuesdata <- tidytuesdayR::tt_load('2022-09-27')
+tuesdata <- tidytuesdayR::tt_load(2022, week = 39)
+
+artists <- tuesdata$artists
+
+artists2 <- artists %>%
+  mutate(Music_Industry = str_detect(type, "Music")) %>%
+  filter(Music_Industry == TRUE) %>%
+  group_by(race) %>%
+  summarize(total_musicians = sum(artists_n, na.rm = TRUE)) %>% 
+  mutate(race = fct_reorder(race, total_musicians, .desc = TRUE))
+
+
+ggplot(artists2, aes(x = race, y = total_musicians)) +
+  geom_col(fill = "lightblue") +
+  labs(
+    title = "Distribution of Music Industry Professionals Across Races in the US",
+    x = "Race",
+    y = "Number working as Musicians, Music Directors, or Composers",
+  )
+
+```
+
+Source:
+
+[Artists in the USA](https://github.com/rfordatascience/tidytuesday/tree/main/data/2022/2022-09-27): Tidy Tuesday Data from 2022-09-27
+
+*Artists in the Workforce: National and State Estimates for 2015-2019*. (July 2022). National Endowment for the Arts. <https://www.arts.gov/impact/research/arts-data-profile-series/adp-31>.
