@@ -1,10 +1,14 @@
 ---
 title: "Emma's Site"
+image: media/000073870005.jpeg
+
 about:
   template: jolla
+  image-shape: round
+  image-width: 17em
   links:
     - text: GitHub
       href: https://github.com/Emma6547
 ---
 
-Hi there! This is my first Quarto website, on which you can find some data visualizations I did.
+Hi there! This is my first Quarto website, on which you can find two data visualizations I did. Both of them have to do with music, check out my [About](about.qmd) page to find out more :)

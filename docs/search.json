@@ -1,16 +1,30 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "dataviztwo.html",
+    "href": "dataviztwo.html",
+    "title": "Greatest Albums",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "This data set from TidyTuesday originates from a Google Sheet compiled by Chris Eckert. It compares Rolling Stone’s “500 Greatest Albums of All Time” lists from 2003, 2012, and 2020 and includes information on each album’s name, genre, release year, 2003/2012/2020 rank, the artist’s name, birth year, gender, and more. This analysis looks at the trend in the production of the “greatest” albums over time. Which years were the most fruitful? Are artists getting worse at producing incredible albums?\n\n\nShow the code\nlibrary(tidyverse)\n\ntuesdata &lt;- tidytuesdayR::tt_load(2024, week = 19)\n\nrolling_stone &lt;- tuesdata$rolling_stone\n\nrolling_stone_df &lt;- rolling_stone %&gt;% \n  group_by(release_year) %&gt;% \n  summarize(num_per_year = n_distinct(album))\n\nggplot(rolling_stone_df, aes(x = release_year, y = num_per_year)) +\n  geom_point(color = \"cadetblue\") +\n  geom_line(color = \"cadetblue\") +\n  labs(\n    title = \"Rolling Stone's Greatest Albums of All Time\",\n    x = \"Release Year\",\n    y = \"Number of Albums Included in Top 500 Ranking\",\n  ) \n\n\n\n\n\n\n\n\n\nSource:\nRolling Stone Album Rankings: Tidy Tuesday Data from 2024-05-07\nDalla Riva, C., & Daniels, M. (n.d.). WHAT MAKES AN ALBUM THE GREATEST OF ALL TIME? The Pudding. https://pudding.cool/2024/03/greatest-music/."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Emma’s Site",
     "section": "",
-    "text": "Hi there! This is my first Quarto website, on which you can find some data visualizations I did."
+    "text": "Hi there! This is my first Quarto website, on which you can find two data visualizations I did. Both of them have to do with music, check out my About page to find out more :)"
+  },
+  {
+    "objectID": "datavizone.html",
+    "href": "datavizone.html",
+    "title": "Musicians in the US",
+    "section": "",
+    "text": "This data is from TidyTuesday and is sourced from the National Endowment for the Arts. It gives state-level estimates for the total number of artists and for each individual type of artist in the workforce, covering 2015-2019. This analysis examines the total number of workers in the music industry specifically (musicians, music directors, and composers) and compares the totals across races.\n\n\nShow the code\nlibrary(tidyverse)\n\ntuesdata &lt;- tidytuesdayR::tt_load('2022-09-27')\ntuesdata &lt;- tidytuesdayR::tt_load(2022, week = 39)\n\nartists &lt;- tuesdata$artists\n\nartists2 &lt;- artists %&gt;%\n  mutate(Music_Industry = str_detect(type, \"Music\")) %&gt;%\n  filter(Music_Industry == TRUE) %&gt;%\n  group_by(race) %&gt;%\n  summarize(total_musicians = sum(artists_n, na.rm = TRUE)) %&gt;% \n  mutate(race = fct_reorder(race, total_musicians, .desc = TRUE))\n\n\nggplot(artists2, aes(x = race, y = total_musicians)) +\n  geom_col(fill = \"lightblue\") +\n  labs(\n    title = \"Distribution of Music Industry Professionals Across Races in the US\",\n    x = \"Race\",\n    y = \"Number working as Musicians, Music Directors, or Composers\",\n  )\n\n\n\n\n\n\n\n\n\nSource:\nArtists in the USA: Tidy Tuesday Data from 2022-09-27\nArtists in the Workforce: National and State Estimates for 2015-2019. (July 2022). National Endowment for the Arts. https://www.arts.gov/impact/research/arts-data-profile-series/adp-31."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi! My name is Emma. For the sake of anonymity, I’ll leave out my last name.\nThe data visualizations you can find on the website both focus on music… I love music!\nMy favourite albums right now include the following:\n\n“little oblivions” by julien baker\n“the 1975 (deluxe version)” by the 1975\n“divinely uninspired to a hellish extent” by lewis capaldi\n“21” by adele\n“the record” by boygenius\n“punisher” by phoebe bridgers\n“take the sadness out of saturday night” by bleachers\n“home video” by lucy dacus"
   }
 ]
