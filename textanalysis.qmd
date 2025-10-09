@@ -1,0 +1,98 @@
+---
+title: "Text Analysis"
+description: |
+  Analysis of Letters Submitted to "Dear Abby" Column From 1985 - 2017
+format: 
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+
+author: Emma N.
+date: October 7, 2025
+
+execute: 
+  warning: false
+  message: false
+---
+
+This data set contains 20,000 letters written in to Dear Abby, and was used in The Pudding essay "[30 Years of American Anxieties: What 20,000 letters to an advice columnist tell us about what—and who—concerns us most.](https://pudding.cool/2018/11/dearabby/)" The data contains letters published from 1985 to 2017.
+
+```{r}
+
+library(tidyverse)
+
+dearabby <- read_csv("https://raw.githubusercontent.com/the-pudding/data/master/dearabby/raw_da_qs.csv")
+
+dearabby1 <- dearabby %>% 
+  mutate(title = str_to_lower(title)) %>% 
+  group_by(year) %>% 
+  summarize(
+    mom = sum(str_count(title, "mom*."), na.rm = TRUE), 
+    dad = sum(str_count(title, "dad*."), na.rm = TRUE))
+
+ggplot(dearabby1, aes(year)) +
+  geom_line(aes(y = mom, color = "Mom")) +
+  geom_line(aes(y = dad, color = "Dad")) +
+  labs(
+    title = "Mention of Mom and Dad in 'Dear Abby' Column Titles Over Time",
+    x = "Year",
+    y = "Frequency",
+  )
+
+```
+
+![]()
+
+This data visualization illustrates the frequency of use of "mom" and "dad" in the Dear Abby letters between 1985 and 2017. The plot demonstrates that both words have been employed more frequently over the course of the 30 years, despite the fact that the number of letters published per year remained constant (approximately one letter per day). Notably, the mention of "mom" and "dad" vary with one another, though "mom" reliably appears more often. The plot might suggest that writers have become more concerned with issues relating to/involving their parents in over the course of the past thirty years.
+
+```{r}
+
+library(tidyverse)
+
+dearabby2 <- dearabby %>%
+  mutate(self_verbs = str_extract_all(question_only, "(?<=i )\\w+")) %>% 
+  unnest(self_verbs) %>%
+  group_by(self_verbs) %>%
+  summarize(count = n()) %>% 
+  filter(str_detect(self_verbs, "(want$|wish$|hope$|pray$|expect$|beg$|require$)")) %>%
+  arrange(count)
+
+ggplot(dearabby2, aes(x = self_verbs, y = count)) +
+  geom_col(fill = "lightblue") +
+  labs(
+    title = "Mention of Desire Verbs in 'Dear Abby' Questions",
+    x = "Frequency of Use",
+    y = "Expression of Desire",
+  )
+
+
+```
+
+This data visualization seeks to model the use of verbs expressing personal desire. The top six verbs expressing desire (begging, expecting, hoping, praying, wanting, and wishing) were selected, and the frequency of their occurrence was compared. The only instances in which these occurrences were counted was in direct reference to the self ("I ..."). This suggests that a far greater proportion of expressed their desires in terms of wanting something compared to hoping or praying for something.
+
+```{r}
+
+dearabby3 <- dearabby %>% 
+  mutate(wants = str_detect(question_only, "\\bi want\\b")) %>% 
+  filter(wants == TRUE) %>% 
+  group_by(year) %>% 
+  summarize(want_count = sum(wants))
+
+ggplot(dearabby3, aes(x = year, y = want_count)) +
+  geom_point(color = "deepskyblue3") +
+  geom_smooth(method = "lm", se = FALSE, color = "gray") +
+  labs(
+    title = "Mention of 'Wanting' in 'Dear Abby' Questions Over Time",
+    x = "Year",
+    y = "Expression of Wants",
+  )
+
+```
+
+This data visualization further investigates the use of the phrase "I want", which was found to be the most common expression of desire in the previous plot. The present analysis compares the frequency of the occurrence of this phrase over the course of the thirty years. The plot suggests that there is a weak positive correlation between time and expression of "wanting".
+
+Source:
+
+[Dear Abby](https://github.com/the-pudding/data/tree/master/dearabby): The Pudding on GitHub (2018).
+
+Blinderman, I., Ralph, C., & Samora, R. (2018, November). *30 years of American anxieties*. The Pudding. <https://pudding.cool/2018/11/dearabby/>.

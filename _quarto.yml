@@ -13,6 +13,7 @@ website:
         menu:
         - datavizone.qmd
         - dataviztwo.qmd
+      - textanalysis.qmd
 
 format:
   html:
