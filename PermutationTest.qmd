@@ -1,0 +1,108 @@
+---
+title: "Permutation Test"
+description: |
+  Testing the Hypothesis That Gas Price Correlates With National Park Visitor Numbers 
+format: 
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+
+author: Emma N.
+date: October 29, 2025
+
+execute: 
+  warning: false
+  message: false
+---
+
+In this project, I am examining the TidyTuesday dataset on "[National Park Visits](https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17)" and testing the hypothesis that yearly visitor numbers in national parks across the country correlate with the price of gas in that year. The original data consists of three CSV files, including info on national park visitors from 1904 to 2016, state populations, annual gas prices from 1929 to 2015 adjusted for inflation, and locations. In the following analysis, I plan to explore the relationship between national park visitation and gas price, hypothesizing that a higher price might correlate with lower visitor rates, since people might be less motivated to drive and thus spend more money on gas. Of course, this hypothesis will presumably be difficult to demonstrate, due to the broad scope and limited specificity of the data. For my analysis, I plan to compare visitor rates with gas prices from the years 1929 to 2015. I will assign the gas prices adjusted to the 2015 inflation rate to the categories "low" or "high" depending on whether they exceed the threshold of \$2.04 (the median of gas prices). Then, I will calculate the mean number of total visitors to all national parks for high price years and low gas price years, and plot the results on a bar graph. Ultimately, I will generate a null sampling distribution in order to examine to what extent the difference between high and low price years is likely due to the gas price variable, or whether the results are likely to be random.
+
+```{r}
+
+library(dplyr)
+library(tidyverse)
+
+park_visits <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2019/2019-09-17/national_parks.csv")
+
+gas_price <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2019/2019-09-17/gas_price.csv")
+
+#cleaning the park visits dataframe
+
+park_visits_revised <- park_visits |>
+  select(year, unit_name, visitors) |>
+  group_by(year) |>
+  summarize(total_visitors = sum(visitors)) |>
+  filter(year >= "1929", year <= "2015") |>
+  mutate(year = as.numeric(year))
+
+#cleaning the gas price dataframe
+
+# gas_price |> 
+#   summarize(median = median(gas_constant))
+
+gas_price_revised <- gas_price |>
+  mutate(gas_price = case_when(
+    gas_constant < 2.04 ~ "low",
+    TRUE ~ "high",
+  )) |>
+  select(year, gas_price) |>
+  filter(year >= "1929", year <= "2015")
+
+#joining both dataframes
+
+joined_data <- full_join(park_visits_revised, gas_price_revised, by = "year")
+
+#initial result calculations & graphing
+
+means_calculated <- joined_data |> 
+  group_by(gas_price) |> 
+  summarize(ave_visitors = mean(total_visitors))
+
+ggplot(data = means_calculated, aes(x = gas_price, y = ave_visitors)) + 
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  geom_text(aes(label = ave_visitors), stat = "identity", vjust = -0.5) +
+  labs(title = "Difference in Yearly National Park Visitors Based on Annual Gas Price", x = "Annual Gas Price", y = "Yearly National Park Visitors") 
+
+
+
+```
+
+The plot above displays the mean of the total national park visitors per year for the high gas price ( \>= \$2.04) and low gas price (\< \$2.04) conditions. During years with high gas prices, there were upwards of 124 million visitors per year on average. During years with low gas prices, however, there were more than 184 million visitors per year on average, approximately 60 million more than in the low price condition.
+
+```{r}
+
+#permutation test
+
+perm_data <- function(rep){
+  joined_data |> 
+    select(total_visitors, gas_price) |> 
+    mutate(gas_perm = sample(total_visitors, replace = FALSE)) |> 
+    group_by(gas_price) |> 
+    summarize(obs_ave = mean(total_visitors),
+              perm_ave = mean(gas_perm)) |> 
+    summarize(obs_ave_diff = diff(obs_ave),
+              perm_ave_diff = diff(perm_ave),
+              rep = rep)
+}
+
+set.seed(47)
+perm_stats <- map(c(1:700), perm_data) |> 
+  list_rbind()
+
+perm_stats |> 
+  ggplot(aes(x = perm_ave_diff)) + 
+  geom_histogram(fill = "cornflowerblue") + 
+  geom_vline(aes(xintercept = obs_ave_diff), color = "deeppink4") +
+  labs(title = "Null Sampling Distribution of Mean Difference in Visitors", x = "Difference in Means", y = "Count")
+
+#calculating p-value
+
+perm_stats |> 
+  summarize(p_val_ave = mean(perm_ave_diff > obs_ave_diff))
+```
+
+The plot above represents a null sampling distribution created from a 700 permutations of yearly visitor totals being randomly assigned to the high or low gas price condition and the difference in means between the two conditions being calculated. When the difference of \~60 million - as calculated from the observed data - was plotted is on the null sampling distribution, it becomes clear that the observed effect is somewhat unlikely to be randomly caused. In fact, the p-value of 0.008 calculated in the data frame above suggests that there is moderate evidence against the null model. As such, we could accept the hypothesis that years with higher gas prices have seen lower national park attendance in the past. However, one must of course be cautious about not reading too much into these results, since the data is highly generalized, and a variety of other factors (such as economic stability, national park popularity, and willingness to go on trips) may have played a role in the data.
+
+Source:
+
+Tidy Tuesday. (2019, September 17). *National Park Visits*. GitHub. <https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17>. Originally sourced from [dataisplural/data.world](https://data.world/inform8n/us-national-parks-visitation-1904-2016-with-boundaries). 

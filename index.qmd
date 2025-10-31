@@ -11,4 +11,4 @@ about:
       href: https://github.com/Emma6547
 ---
 
-Hi there! This is my first Quarto website, on which you can find two data visualizations I did. Both of them have to do with music, check out my [About](about.qmd) page to find out more :)
+Hi there! This is my first Quarto website, on which you can find some things I've been working on in my Intro to Data Science class. Feel free to check out my [About](about.qmd) page to find out more :)

@@ -15,6 +15,8 @@ website:
         - dataviztwo.qmd
       - href: textanalysis.qmd
         text: Text Analysis
+      - href: PermutationTest.qmd
+        text: Permutation Test
 
 format:
   html:

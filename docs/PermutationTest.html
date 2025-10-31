@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Emma N.">
-<meta name="dcterms.date" content="2025-10-07">
-<meta name="description" content="Analysis of Letters Submitted to “Dear Abby” Column From 1985 - 2017">
+<meta name="dcterms.date" content="2025-10-29">
+<meta name="description" content="Testing the Hypothesis That Gas Price Correlates With National Park Visitor Numbers">
 
-<title>Text Analysis – Emma’s Site</title>
+<title>Permutation Test – Emma’s Site</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -151,11 +151,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
   </li>
   <li class="nav-item">
-    <a class="nav-link active" href="./textanalysis.html" aria-current="page"> 
+    <a class="nav-link" href="./textanalysis.html"> 
 <span class="menu-text">Text Analysis</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./PermutationTest.html"> 
+    <a class="nav-link active" href="./PermutationTest.html" aria-current="page"> 
 <span class="menu-text">Permutation Test</span></a>
   </li>  
 </ul>
@@ -178,12 +178,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Text Analysis</h1>
+<h1 class="title">Permutation Test</h1>
 </div>
 
 <div>
   <div class="description">
-    <p>Analysis of Letters Submitted to “Dear Abby” Column From 1985 - 2017</p>
+    <p>Testing the Hypothesis That Gas Price Correlates With National Park Visitor Numbers</p>
   </div>
 </div>
 
@@ -200,7 +200,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 7, 2025</p>
+      <p class="date">October 29, 2025</p>
     </div>
   </div>
   
@@ -212,100 +212,114 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This data set contains 20,000 letters written in to Dear Abby, and was used in The Pudding essay “<a href="https://pudding.cool/2018/11/dearabby/">30 Years of American Anxieties: What 20,000 letters to an advice columnist tell us about what—and who—concerns us most.</a>” The data contains letters published from 1985 to 2017.</p>
+<p>In this project, I am examining the TidyTuesday dataset on “<a href="https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17">National Park Visits</a>” and testing the hypothesis that yearly visitor numbers in national parks across the country correlate with the price of gas in that year. The original data consists of three CSV files, including info on national park visitors from 1904 to 2016, state populations, annual gas prices from 1929 to 2015 adjusted for inflation, and locations. In the following analysis, I plan to explore the relationship between national park visitation and gas price, hypothesizing that a higher price might correlate with lower visitor rates, since people might be less motivated to drive and thus spend more money on gas. Of course, this hypothesis will presumably be difficult to demonstrate, due to the broad scope and limited specificity of the data. For my analysis, I plan to compare visitor rates with gas prices from the years 1929 to 2015. I will assign the gas prices adjusted to the 2015 inflation rate to the categories “low” or “high” depending on whether they exceed the threshold of $2.04 (the median of gas prices). Then, I will calculate the mean number of total visitors to all national parks for high price years and low gas price years, and plot the results on a bar graph. Ultimately, I will generate a null sampling distribution in order to examine to what extent the difference between high and low price years is likely due to the gas price variable, or whether the results are likely to be random.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dearabby <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/the-pudding/data/master/dearabby/raw_da_qs.csv"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dearabby1 <span class="ot">&lt;-</span> dearabby <span class="sc">%&gt;%</span> </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">title =</span> <span class="fu">str_to_lower</span>(title)) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">mom =</span> <span class="fu">sum</span>(<span class="fu">str_count</span>(title, <span class="st">"mom*."</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>), </span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">dad =</span> <span class="fu">sum</span>(<span class="fu">str_count</span>(title, <span class="st">"dad*."</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dearabby1, <span class="fu">aes</span>(year)) <span class="sc">+</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> mom, <span class="at">color =</span> <span class="st">"Mom"</span>)) <span class="sc">+</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> dad, <span class="at">color =</span> <span class="st">"Dad"</span>)) <span class="sc">+</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Mention of Mom and Dad in 'Dear Abby' Column Titles Over Time"</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span>,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>park_visits <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2019/2019-09-17/national_parks.csv"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>gas_price <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2019/2019-09-17/gas_price.csv"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#cleaning the park visits dataframe</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>park_visits_revised <span class="ot">&lt;-</span> park_visits <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, unit_name, visitors) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">total_visitors =</span> <span class="fu">sum</span>(visitors)) <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="st">"1929"</span>, year <span class="sc">&lt;=</span> <span class="st">"2015"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.numeric</span>(year))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#cleaning the gas price dataframe</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># gas_price |&gt; </span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   summarize(median = median(gas_constant))</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>gas_price_revised <span class="ot">&lt;-</span> gas_price <span class="sc">|&gt;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gas_price =</span> <span class="fu">case_when</span>(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    gas_constant <span class="sc">&lt;</span> <span class="fl">2.04</span> <span class="sc">~</span> <span class="st">"low"</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"high"</span>,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, gas_price) <span class="sc">|&gt;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="st">"1929"</span>, year <span class="sc">&lt;=</span> <span class="st">"2015"</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">#joining both dataframes</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>joined_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(park_visits_revised, gas_price_revised, <span class="at">by =</span> <span class="st">"year"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">#initial result calculations &amp; graphing</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>means_calculated <span class="ot">&lt;-</span> joined_data <span class="sc">|&gt;</span> </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gas_price) <span class="sc">|&gt;</span> </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">ave_visitors =</span> <span class="fu">mean</span>(total_visitors))</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> means_calculated, <span class="fu">aes</span>(<span class="at">x =</span> gas_price, <span class="at">y =</span> ave_visitors)) <span class="sc">+</span> </span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"cornflowerblue"</span>) <span class="sc">+</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> ave_visitors), <span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Difference in Yearly National Park Visitors Based on Annual Gas Price"</span>, <span class="at">x =</span> <span class="st">"Annual Gas Price"</span>, <span class="at">y =</span> <span class="st">"Yearly National Park Visitors"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="textanalysis_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="PermutationTest_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p><img src=".png" class="img-fluid"></p>
-<p>This data visualization illustrates the frequency of use of “mom” and “dad” in the Dear Abby letters between 1985 and 2017. The plot demonstrates that both words have been employed more frequently over the course of the 30 years, despite the fact that the number of letters published per year remained constant (approximately one letter per day). Notably, the mention of “mom” and “dad” vary with one another, though “mom” reliably appears more often. The plot might suggest that writers have become more concerned with issues relating to/involving their parents in over the course of the past thirty years.</p>
+<p>The plot above displays the mean of the total national park visitors per year for the high gas price ( &gt;= $2.04) and low gas price (&lt; $2.04) conditions. During years with high gas prices, there were upwards of 124 million visitors per year on average. During years with low gas prices, however, there were more than 184 million visitors per year on average, approximately 60 million more than in the low price condition.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#permutation test</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dearabby2 <span class="ot">&lt;-</span> dearabby <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">self_verbs =</span> <span class="fu">str_extract_all</span>(question_only, <span class="st">"(?&lt;=i )</span><span class="sc">\\</span><span class="st">w+"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(self_verbs) <span class="sc">%&gt;%</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(self_verbs) <span class="sc">%&gt;%</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(self_verbs, <span class="st">"(want$|wish$|hope$|pray$|expect$|beg$|require$)"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(count)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dearabby2, <span class="fu">aes</span>(<span class="at">x =</span> self_verbs, <span class="at">y =</span> count)) <span class="sc">+</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Mention of Desire Verbs in 'Dear Abby' Questions"</span>,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Frequency of Use"</span>,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Expression of Desire"</span>,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>perm_data <span class="ot">&lt;-</span> <span class="cf">function</span>(rep){</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  joined_data <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(total_visitors, gas_price) <span class="sc">|&gt;</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">gas_perm =</span> <span class="fu">sample</span>(total_visitors, <span class="at">replace =</span> <span class="cn">FALSE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(gas_price) <span class="sc">|&gt;</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">obs_ave =</span> <span class="fu">mean</span>(total_visitors),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">perm_ave =</span> <span class="fu">mean</span>(gas_perm)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">obs_ave_diff =</span> <span class="fu">diff</span>(obs_ave),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">perm_ave_diff =</span> <span class="fu">diff</span>(perm_ave),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">rep =</span> rep)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">47</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>perm_stats <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">700</span>), perm_data) <span class="sc">|&gt;</span> </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list_rbind</span>()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>perm_stats <span class="sc">|&gt;</span> </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> perm_ave_diff)) <span class="sc">+</span> </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"cornflowerblue"</span>) <span class="sc">+</span> </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> obs_ave_diff), <span class="at">color =</span> <span class="st">"deeppink4"</span>) <span class="sc">+</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Null Sampling Distribution of Mean Difference in Visitors"</span>, <span class="at">x =</span> <span class="st">"Difference in Means"</span>, <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="textanalysis_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="PermutationTest_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-</div>
-<p>This data visualization seeks to model the use of verbs expressing personal desire. The top six verbs expressing desire (begging, expecting, hoping, praying, wanting, and wishing) were selected, and the frequency of their occurrence was compared. The only instances in which these occurrences were counted was in direct reference to the self (“I …”). This suggests that a far greater proportion of expressed their desires in terms of wanting something compared to hoping or praying for something.</p>
-<div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dearabby3 <span class="ot">&lt;-</span> dearabby <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wants =</span> <span class="fu">str_detect</span>(question_only, <span class="st">"</span><span class="sc">\\</span><span class="st">bi want</span><span class="sc">\\</span><span class="st">b"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(wants <span class="sc">==</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">want_count =</span> <span class="fu">sum</span>(wants))</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dearabby3, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> want_count)) <span class="sc">+</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"deepskyblue3"</span>) <span class="sc">+</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Mention of 'Wanting' in 'Dear Abby' Questions Over Time"</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Expression of Wants"</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculating p-value</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>perm_stats <span class="sc">|&gt;</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">p_val_ave =</span> <span class="fu">mean</span>(perm_ave_diff <span class="sc">&gt;</span> obs_ave_diff))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="textanalysis_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  p_val_ave
+      &lt;dbl&gt;
+1   0.00857</code></pre>
 </div>
 </div>
-</div>
-<p>This data visualization further investigates the use of the phrase “I want”, which was found to be the most common expression of desire in the previous plot. The present analysis compares the frequency of the occurrence of this phrase over the course of the thirty years. The plot suggests that there is a weak positive correlation between time and expression of “wanting”.</p>
+<p>The plot above represents a null sampling distribution created from a 700 permutations of yearly visitor totals being randomly assigned to the high or low gas price condition and the difference in means between the two conditions being calculated. When the difference of ~60 million - as calculated from the observed data - was plotted is on the null sampling distribution, it becomes clear that the observed effect is somewhat unlikely to be randomly caused. In fact, the p-value of 0.008 calculated in the data frame above suggests that there is moderate evidence against the null model. As such, we could accept the hypothesis that years with higher gas prices have seen lower national park attendance in the past. However, one must of course be cautious about not reading too much into these results, since the data is highly generalized, and a variety of other factors (such as economic stability, national park popularity, and willingness to go on trips) may have played a role in the data.</p>
 <p>Source:</p>
-<p><a href="https://github.com/the-pudding/data/tree/master/dearabby">Dear Abby</a>: The Pudding on GitHub (2018).</p>
-<p>Blinderman, I., Ralph, C., &amp; Samora, R. (2018, November). <em>30 years of American anxieties</em>. The Pudding. <a href="https://pudding.cool/2018/11/dearabby/" class="uri">https://pudding.cool/2018/11/dearabby/</a>.</p>
+<p>Tidy Tuesday. (2019, September 17).&nbsp;<em>National Park Visits</em>. GitHub. <a href="https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17" class="uri">https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17</a>. Originally sourced from <a href="https://data.world/inform8n/us-national-parks-visitation-1904-2016-with-boundaries">dataisplural/data.world</a>.&nbsp;</p>
 
 
 
