@@ -2,7 +2,6 @@
 title: "Ethics: Data & Power"
 description: |
  Examining the Role of Ethics in Data Science Through an Algorithm That Predicts Child Neglect 
-  
 format: html
 
 author: Emma N.
