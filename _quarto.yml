@@ -18,7 +18,6 @@ website:
       - href: PermutationTest.qmd
         text: Permutation Test
       - href: Ethics.qmd
-        text: On Ethics
 
 format:
   html:
