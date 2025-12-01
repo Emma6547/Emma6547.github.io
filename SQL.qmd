@@ -1,0 +1,146 @@
+---
+title: "SQL"
+description: |
+  Analysis of Artists in the USA data from TidyTuesday
+
+author: Emma N.
+date: November 30, 2025
+format: 
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+
+execute: 
+  warning: false
+  message: false
+---
+
+```{r}
+
+library(DBI)
+library(RMariaDB)
+library(dbplyr)
+
+con_traffic <- DBI::dbConnect(
+  RMariaDB::MariaDB(),
+  dbname = "traffic",
+  host = Sys.getenv("TRAFFIC_HOST"),
+  user = Sys.getenv("TRAFFIC_USER"),
+  password = Sys.getenv("TRAFFIC_PWD")
+)
+
+```
+
+
+```{sql}
+#| connection: con_traffic
+
+SHOW TABLES;
+
+```
+
+```{sql}
+#| connection: con_traffic
+#| output.var: "stop_type_gender"
+
+SELECT
+    type,
+    subject_sex,
+    COUNT(*) AS stop_count
+FROM ca_los_angeles_2020_04_01
+WHERE type IS NOT NULL
+GROUP BY type, subject_sex
+ORDER BY type, subject_sex
+LIMIT 10;
+
+```
+
+
+```{r}
+library(tidyverse)
+
+stop_type_gender |> 
+  ggplot(aes(x = subject_sex, y = stop_count, fill = type)) + 
+  geom_col(position = "stack")
+
+```
+
+```{sql}
+#| connection: con_traffic
+
+DESCRIBE la_new_orleans_2020_04_01
+
+```
+
+```{sql}
+#| connection: con_traffic
+#| output.var: "stop_time"
+
+SELECT
+    HOUR(time) AS hour,
+    SUM(search_conducted = 1) AS searches,
+    SUM(contraband_found = 1) AS contraband,
+    SUM(1) AS stop_count
+FROM la_new_orleans_2020_04_01
+WHERE type IS NOT NULL
+GROUP BY hour
+ORDER BY hour;
+
+```
+
+
+```{r}
+
+library(dplyr)
+library(tidyr)
+
+long_df <- stop_time %>%
+  pivot_longer(
+    cols = c(searches, contraband, stop_count),
+    names_to = "metric",
+    values_to = "value"
+  )
+
+long_df |> 
+  ggplot(aes(x = hour, y = value, color = metric)) + 
+  geom_line() +
+  geom_point()
+
+```
+
+```{sql}
+#| connection: con_traffic
+
+DESCRIBE tn_nashville_2020_04_01
+
+```
+
+```{sql}
+#| connection: con_traffic
+#| output.var: "gender_stops"
+
+SELECT
+    subject_age,
+    subject_sex,
+    COUNT(*) AS stop_count
+FROM tn_nashville_2020_04_01
+WHERE subject_age IS NOT NULL AND subject_sex IS NOT NULL
+GROUP BY subject_age, subject_sex
+ORDER BY subject_age;
+
+```
+
+```{r}
+
+gender_stops |> 
+  ggplot(aes(x = subject_age, y = stop_count, color = subject_sex)) + 
+  geom_line()
+
+```
+
+
+```{r}
+
+dbDisconnect(con_traffic, shutdown = TRUE)
+
+```
