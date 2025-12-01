@@ -1,7 +1,7 @@
 ---
 title: "SQL"
 description: |
-  Analysis of Artists in the USA data from TidyTuesday
+  Traffic Stop Data Analysis from the Stanford Open Policing Project
 
 author: Emma N.
 date: November 30, 2025
@@ -14,6 +14,8 @@ execute:
   warning: false
   message: false
 ---
+
+The Stanford Open Policing Project works toward closing the gaping holes in police traffic stop data across the United States. The project gathers and enables access to standardized data on individual traffic stops by publishing individual data sets for various places across the US, which include information on stop date and time, location, driver race, gender and age, as well as searches.
 
 ```{r}
 
@@ -31,13 +33,7 @@ con_traffic <- DBI::dbConnect(
 
 ```
 
-
-```{sql}
-#| connection: con_traffic
-
-SHOW TABLES;
-
-```
+The goal of my first SQL query was to assess the trends in gender across both pedestrian and vehicle stops in Los Angeles. The dataset ranges from December 2009 to June 2018.
 
 ```{sql}
 #| connection: con_traffic
@@ -50,27 +46,28 @@ SELECT
 FROM ca_los_angeles_2020_04_01
 WHERE type IS NOT NULL
 GROUP BY type, subject_sex
-ORDER BY type, subject_sex
-LIMIT 10;
+ORDER BY type, subject_sex;
 
 ```
 
+The stacked bar plot below demonstrates the vast difference in number of traffic stops of male subjects compared to female subjects in Los Angeles in the given time frame. It is also interesting to note that this difference applies for both pedestrian and vehicular stops. Overall, over 2 million more males were stopped than females. It might be interesting to think about what this implies for either biases in police stop selection, or for differences in traffic law compliance or recklessness across genders.
 
 ```{r}
 library(tidyverse)
+library(scales)
 
 stop_type_gender |> 
   ggplot(aes(x = subject_sex, y = stop_count, fill = type)) + 
-  geom_col(position = "stack")
+  geom_col(position = "stack") +
+  labs(title = "Traffic Stops by Gender in Los Angeles Dec 2009 - Jun 2018", 
+       x = "Subject Gender", 
+       y = "Stop Count") +
+  scale_fill_manual(values = c("cornflowerblue", "navyblue")) +
+  scale_y_continuous(labels = comma)
 
 ```
 
-```{sql}
-#| connection: con_traffic
-
-DESCRIBE la_new_orleans_2020_04_01
-
-```
+My next SQL query aimed to investigate the trends in traffic stops from the perspective of the 24-hour day. In addition to overall stops, I also wanted to examine potential trends in contraband found or searches conducted. This is because I hypothesized that there would be a greater number of reckless or non-law-abiding drivers/pedestrians later in the evening than at other times of the day. For example, it could be more likely that someone drives under the influence late at night compared to at noon. The data examined in this query was taken from New Orleans between December 2009 and July 2018.
 
 ```{sql}
 #| connection: con_traffic
@@ -88,6 +85,7 @@ ORDER BY hour;
 
 ```
 
+The line plot below reveals trends in traffic stops at different hours of the day. Such trends are most visible in the overall stop count, but are also reflected in the searches conducted and the contraband found, as it would be expected that the latter correlate with the former. As hypothesized, stop counts are greater in the late evening and night, with the most significant dip around 6 in the morning. The number of searches conducted also slightly increases towards the night and goes down in the morning.
 
 ```{r}
 
@@ -104,16 +102,17 @@ long_df <- stop_time %>%
 long_df |> 
   ggplot(aes(x = hour, y = value, color = metric)) + 
   geom_line() +
-  geom_point()
+  geom_point() +
+  scale_color_manual(values = c("contraband" = "cornflowerblue", 
+                                "searches" = "navyblue", 
+                                "stop_count" = "cadetblue")) +
+  labs(title = "Traffic Stops by Time of Day in New Orleans Dec 2009 - Jul 2018", 
+       x = "Hour", 
+       y = "Count")
 
 ```
 
-```{sql}
-#| connection: con_traffic
-
-DESCRIBE tn_nashville_2020_04_01
-
-```
+My final SQL query explored the role of age in traffic stops, differentiating between subject gender. Here, I looked at the data from Nashville between December 2009 and March 2019.
 
 ```{sql}
 #| connection: con_traffic
@@ -130,17 +129,32 @@ ORDER BY subject_age;
 
 ```
 
+The line plot below illustrates the data for overall traffic stops by age for the given time frame in Nashville. As might be expected, younger people (presumably more inexperienced and/or reckless) represent the greatest number of subjects in traffic stops, such that the plot peaks around 21 for both genders. Notably, as demonstrated in the first plot, a greater number of the subjects are male.
+
 ```{r}
 
 gender_stops |> 
   ggplot(aes(x = subject_age, y = stop_count, color = subject_sex)) + 
-  geom_line()
+  geom_line() +
+  scale_color_manual(values = c("female" = "cornflowerblue", 
+                                "male" = "navyblue")) +
+  labs(title = "Traffic Stops by Subject Age and Gender in Nashville Dec 2009 - Mar 2019", 
+       x = "Subject Age", 
+       y = "Stop Count")
+  
 
 ```
-
 
 ```{r}
 
 dbDisconnect(con_traffic, shutdown = TRUE)
 
 ```
+
+Overall, these queries into the Stanford Open Policing Project reveal trends in gender, age, and time of day that correlate with greater or lower numbers of traffic stops. Since each plot only explores the data from one region each, it would be interesting the merge the complete selection of data sets for a more comprehensive overview.
+
+Source:
+
+[Stanford Open Policing Project](https://openpolicing.stanford.edu)
+
+E. Pierson, C. Simoiu, J. Overgoor, S. Corbett-Davies, D. Jenson, A. Shoemaker, V. Ramachandran, P. Barghouty, C. Phillips, R. Shroff, and S. Goel. “A large-scale analysis of racial disparities in police stops across the United States”. Nature Human Behaviour, Vol. 4, 2020.

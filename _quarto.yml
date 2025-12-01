@@ -19,6 +19,8 @@ website:
         text: Permutation Test
       - href: Ethics.qmd
         text: Ethics
+      - href: SQL.qmd
+        text: SQL
 
 format:
   html:
