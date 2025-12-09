@@ -24,8 +24,8 @@ tuesdata <- tidytuesdayR::tt_load(2024, week = 19)
 
 rolling_stone <- tuesdata$rolling_stone
 
-rolling_stone_df <- rolling_stone %>% 
-  group_by(release_year) %>% 
+rolling_stone_df <- rolling_stone |> 
+  group_by(release_year) |> 
   summarize(num_per_year = n_distinct(album))
 
 ggplot(rolling_stone_df, aes(x = release_year, y = num_per_year)) +

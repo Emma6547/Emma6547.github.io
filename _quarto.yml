@@ -21,6 +21,8 @@ website:
         text: Ethics
       - href: SQL.qmd
         text: SQL
+      - href: FinalPresentation.qmd
+        text: Final Presentation
 
 format:
   html:

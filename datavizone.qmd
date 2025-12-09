@@ -25,11 +25,11 @@ tuesdata <- tidytuesdayR::tt_load(2022, week = 39)
 
 artists <- tuesdata$artists
 
-artists2 <- artists %>%
-  mutate(Music_Industry = str_detect(type, "Music")) %>%
-  filter(Music_Industry == TRUE) %>%
-  group_by(race) %>%
-  summarize(total_musicians = sum(artists_n, na.rm = TRUE)) %>% 
+artists2 <- artists |> 
+  mutate(Music_Industry = str_detect(type, "Music")) |> 
+  filter(Music_Industry == TRUE) |> 
+  group_by(race) |> 
+  summarize(total_musicians = sum(artists_n, na.rm = TRUE)) |> 
   mutate(race = fct_reorder(race, total_musicians, .desc = TRUE))
 
 

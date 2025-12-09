@@ -1,0 +1,71 @@
+---
+title: "Rolling Stone's Top 500: A Shiny App"
+author: "Emma N."
+subtitle: "Data Science Final Presentation"
+format:
+  revealjs:
+    scrollable: true
+    slide-number: true
+    show-slide-number: all
+    embed-resources: true
+    theme: moon
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# The Data 
+
+## Rolling Stone’s 500 Greatest Albums of All Time
+
+This data set from TidyTuesday originates from a [Google Sheet](https://docs.google.com/spreadsheets/d/1QguM-JM3LAJuZlnmY8aN0MutBJrZAzDs3aWZWTtF1WU/edit?gid=0#gid=0) compiled by Chris Eckert. It compares Rolling Stone’s “500 Greatest Albums of All Time” lists from 2003, 2012, and 2020 and includes information on each album's name, genre, release year, 2003/2012/2020 rank, the artist’s name, birth year, gender, and more. This analysis looks at the trend in the production of the "greatest" albums over time. Which years were the most fruitful? Are artists getting worse at producing incredible albums?
+
+```{r}
+
+library(tidyverse)
+
+tuesdata <- tidytuesdayR::tt_load(2024, week = 19)
+
+rolling_stone <- tuesdata$rolling_stone
+
+colnames(rolling_stone)
+
+
+```
+
+\
+Source:
+
+[Rolling Stone Album Rankings](https://github.com/rfordatascience/tidytuesday/blob/main/data/2024/2024-05-07/readme.md): Tidy Tuesday Data from 2024-05-07
+
+Dalla Riva, C., & Daniels, M. (n.d.). *WHAT MAKES AN ALBUM THE GREATEST OF ALL TIME?* The Pudding. <https://pudding.cool/2024/03/greatest-music/>.
+
+## Original Data Visualization
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+
+library(tidyverse)
+
+tuesdata <- tidytuesdayR::tt_load(2024, week = 19)
+
+rolling_stone <- tuesdata$rolling_stone
+
+rolling_stone_df <- rolling_stone |> 
+  group_by(release_year) |> 
+  summarize(num_per_year = n_distinct(album))
+
+ggplot(rolling_stone_df, aes(x = release_year, y = num_per_year)) +
+  geom_point(color = "cadetblue") +
+  geom_line(color = "cadetblue") +
+  labs(
+    title = "Rolling Stone's Greatest Albums of All Time",
+    x = "Release Year",
+    y = "Number of Albums Included in Top 500 Ranking",
+  ) 
+
+```
+
+# Shiny
