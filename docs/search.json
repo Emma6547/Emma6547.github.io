@@ -25,7 +25,7 @@
     "href": "FinalPresentation.html#the-outcome",
     "title": "Rolling Stone’s Top 500: A Shiny App",
     "section": "The Outcome",
-    "text": "The Outcome\nMy First Shiny App!"
+    "text": "The Outcome\nShiny App\nAn interactive app gives the user the opportunity to engage with the data in a more tangible manner. Distinguishing between trends in Top 500 Album constituents by genre provides insight not just into the distribution of Rolling Stone’s rankings over release year, but also reveals interesting trends about which genres have ebbed and flowed in popularity over time."
   },
   {
     "objectID": "PermutationTest.html",

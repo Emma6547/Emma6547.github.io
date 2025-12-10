@@ -47,7 +47,7 @@ Dalla Riva, C., & Daniels, M. (n.d.). *WHAT MAKES AN ALBUM THE GREATEST OF ALL 
 
 [View via Quarto Website](https://emma6547.github.io/dataviztwo.html)
 
-# Experimenting with Shiny
+# Implementing Shiny 
 
 ## The Code
 
@@ -135,4 +135,6 @@ shinyApp(ui = ui, server = server)
 
 ## The Outcome
 
-[My First Shiny App!](https://em4567.shinyapps.io/shiny_app/)
+[Shiny App](https://em4567.shinyapps.io/shiny_app/)
+
+An interactive app gives the user the opportunity to engage with the data in a more tangible manner. Distinguishing between trends in Top 500 Album constituents by genre provides insight not just into the distribution of Rolling Stone's rankings over release year, but also reveals interesting trends about which genres have ebbed and flowed in popularity over time.
