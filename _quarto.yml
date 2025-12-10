@@ -13,6 +13,8 @@ website:
         menu:
         - datavizone.qmd
         - dataviztwo.qmd
+        - text: Shiny App
+          href: https://em4567.shinyapps.io/shiny_app/ 
       - href: textanalysis.qmd
         text: Text Analysis
       - href: PermutationTest.qmd

@@ -148,11 +148,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="./dataviztwo.html">
  <span class="dropdown-text">Greatest Albums</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="https://em4567.shinyapps.io/shiny_app/">
+ <span class="dropdown-text">Shiny App</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="./textanalysis.html"> 
 <span class="menu-text">Text Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./PermutationTest.html"> 
+<span class="menu-text">Permutation Test</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Ethics.html"> 
+<span class="menu-text">Ethics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./SQL.html"> 
+<span class="menu-text">SQL</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./FinalPresentation.html"> 
+<span class="menu-text">Final Presentation</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -208,7 +228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This data set from TidyTuesday originates from a <a href="https://docs.google.com/spreadsheets/d/1QguM-JM3LAJuZlnmY8aN0MutBJrZAzDs3aWZWTtF1WU/edit?gid=0#gid=0">Google Sheet</a> compiled by Chris Eckert. It compares Rolling Stone’s “500 Greatest Albums of All Time” lists from 2003, 2012, and 2020 and includes information on each album’s name, genre, release year, 2003/2012/2020 rank, the artist’s name, birth year, gender, and more. This analysis looks at the trend in the production of the “greatest” albums over time. Which years were the most fruitful? Are artists getting worse at producing incredible albums?</p>
+<p>This data set from TidyTuesday originates from a <a href="https://docs.google.com/spreadsheets/d/1QguM-JM3LAJuZlnmY8aN0MutBJrZAzDs3aWZWTtF1WU/edit?gid=0#gid=0">Google Sheet</a> compiled by Chris Eckert. It compares Rolling Stone’s “500 Greatest Albums of All Time” lists from 2003, 2012, and 2020 and includes information on each album’s name, genre, release year, 2003/2012/2020 rank, the artist’s name, birth year, gender, and more. This analysis looks at the trend in the production of the “greatest” albums over time. Which years were the most fruitful? Do the top 500 albums largely consist of older ones, or more recent ones?</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -218,8 +238,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>rolling_stone <span class="ot">&lt;-</span> tuesdata<span class="sc">$</span>rolling_stone</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>rolling_stone_df <span class="ot">&lt;-</span> rolling_stone <span class="sc">%&gt;%</span> </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(release_year) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>rolling_stone_df <span class="ot">&lt;-</span> rolling_stone <span class="sc">|&gt;</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(release_year) <span class="sc">|&gt;</span> </span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_per_year =</span> <span class="fu">n_distinct</span>(album))</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rolling_stone_df, <span class="fu">aes</span>(<span class="at">x =</span> release_year, <span class="at">y =</span> num_per_year)) <span class="sc">+</span></span>

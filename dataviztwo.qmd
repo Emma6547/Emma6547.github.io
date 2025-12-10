@@ -14,7 +14,7 @@ execute:
   message: false
 ---
 
-This data set from TidyTuesday originates from a [Google Sheet](https://docs.google.com/spreadsheets/d/1QguM-JM3LAJuZlnmY8aN0MutBJrZAzDs3aWZWTtF1WU/edit?gid=0#gid=0) compiled by Chris Eckert. It compares Rolling Stone’s “500 Greatest Albums of All Time” lists from 2003, 2012, and 2020 and includes information on each album's name, genre, release year, 2003/2012/2020 rank, the artist’s name, birth year, gender, and more. This analysis looks at the trend in the production of the "greatest" albums over time. Which years were the most fruitful? Are artists getting worse at producing incredible albums?
+This data set from TidyTuesday originates from a [Google Sheet](https://docs.google.com/spreadsheets/d/1QguM-JM3LAJuZlnmY8aN0MutBJrZAzDs3aWZWTtF1WU/edit?gid=0#gid=0) compiled by Chris Eckert. It compares Rolling Stone’s “500 Greatest Albums of All Time” lists from 2003, 2012, and 2020 and includes information on each album's name, genre, release year, 2003/2012/2020 rank, the artist’s name, birth year, gender, and more. This analysis looks at the trend in the production of the "greatest" albums over time. Which years were the most fruitful? Do the top 500 albums largely consist of older ones, or more recent ones?
 
 ```{r}
 
