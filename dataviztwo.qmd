@@ -24,9 +24,13 @@ tuesdata <- tidytuesdayR::tt_load(2024, week = 19)
 
 rolling_stone <- tuesdata$rolling_stone
 
+# wrangling data to count the number of distinct albums in the list released each year
+
 rolling_stone_df <- rolling_stone |> 
   group_by(release_year) |> 
   summarize(num_per_year = n_distinct(album))
+
+# creating a scatterplot
 
 ggplot(rolling_stone_df, aes(x = release_year, y = num_per_year)) +
   geom_point(color = "cadetblue") +
@@ -35,6 +39,10 @@ ggplot(rolling_stone_df, aes(x = release_year, y = num_per_year)) +
     title = "Rolling Stone's Greatest Albums of All Time",
     x = "Release Year",
     y = "Number of Albums Included in Top 500 Ranking",
+    alt = "Scatterplot demonstrating the number of albums in the Rolling Stone's 500 Greatest
+    Albums list realeased each year. Album releases peaked in 1970, fell around 1980 and 
+    curved upwards again towards the 90s, after which the number of albums included in 
+    the ranking sank as 2020 was approached."
   ) 
 
 ```

@@ -25,6 +25,8 @@ tuesdata <- tidytuesdayR::tt_load(2022, week = 39)
 
 artists <- tuesdata$artists
 
+# wrangling data to find the number of artists in different music-related professions
+
 artists2 <- artists |> 
   mutate(Music_Industry = str_detect(type, "Music")) |> 
   filter(Music_Industry == TRUE) |> 
@@ -33,12 +35,17 @@ artists2 <- artists |>
   mutate(race = fct_reorder(race, total_musicians, .desc = TRUE))
 
 
+# creating a bar graph 
+
 ggplot(artists2, aes(x = race, y = total_musicians)) +
   geom_col(fill = "lightblue") +
   labs(
     title = "Distribution of Music Industry Professionals Across Races in the US",
     x = "Race",
     y = "Number working as Musicians, Music Directors, or Composers",
+    alt = "Bar chart showing the distribution of music industry professionals across races 
+    in the US, with white individuals working music-related professions 150,000 
+    and African American, Hispanic, Asian, and Other individuals ranging below 3000."
   )
 
 ```

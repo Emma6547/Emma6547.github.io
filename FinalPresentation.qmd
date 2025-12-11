@@ -47,7 +47,7 @@ Dalla Riva, C., & Daniels, M. (n.d.). *WHAT MAKES AN ALBUM THE GREATEST OF ALL 
 
 [View via Quarto Website](https://emma6547.github.io/dataviztwo.html)
 
-# Implementing Shiny 
+# Implementing Shiny
 
 ## The Code
 

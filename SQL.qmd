@@ -39,6 +39,8 @@ The goal of my first SQL query was to assess the trends in gender across both pe
 #| connection: con_traffic
 #| output.var: "stop_type_gender"
 
+# SQL query to select data on the number of stops for each gender, grouped by stop type
+
 SELECT
     type,
     subject_sex,
@@ -56,12 +58,18 @@ The stacked bar plot below demonstrates the vast difference in number of traffic
 library(tidyverse)
 library(scales)
 
+# bar chart to compare traffic stops between genders
+
 stop_type_gender |> 
   ggplot(aes(x = subject_sex, y = stop_count, fill = type)) + 
   geom_col(position = "stack") +
   labs(title = "Traffic Stops by Gender in Los Angeles Dec 2009 - Jun 2018", 
        x = "Subject Gender", 
-       y = "Stop Count") +
+       y = "Stop Count",
+       alt = "Bar chart comparing the traffic stops that occurred in Los Angeles 
+       between Dec 2009 and Jun 2018 between genders, and distinguishing between stop type. 
+       There were significantly more males that were stopped, both in vehicules and 
+       as pedestrians") +
   scale_fill_manual(values = c("cornflowerblue", "navyblue")) +
   scale_y_continuous(labels = comma)
 
@@ -72,6 +80,8 @@ My next SQL query aimed to investigate the trends in traffic stops from the pers
 ```{sql}
 #| connection: con_traffic
 #| output.var: "stop_time"
+
+# sql query selecting total stops, searches, and instances of contraband found
 
 SELECT
     HOUR(time) AS hour,
@@ -99,6 +109,8 @@ long_df <- stop_time %>%
     values_to = "value"
   )
 
+# creating a line graph with a series for different stop instances
+
 long_df |> 
   ggplot(aes(x = hour, y = value, color = metric)) + 
   geom_line() +
@@ -108,7 +120,11 @@ long_df |>
                                 "stop_count" = "cadetblue")) +
   labs(title = "Traffic Stops by Time of Day in New Orleans Dec 2009 - Jul 2018", 
        x = "Hour", 
-       y = "Count")
+       y = "Count",
+       alt = "Line graph with a series depicting total stop count, searches, and contraband
+       found respectively, over the course of the 24 hour day, as documented in 
+       New Orleans between December 2009 and July 2018. All three metrics were at their 
+       lowest around 6 a.m., with total stops peaking around 3 p.m.")
 
 ```
 
@@ -117,6 +133,8 @@ My final SQL query explored the role of age in traffic stops, differentiating be
 ```{sql}
 #| connection: con_traffic
 #| output.var: "gender_stops"
+
+# sql query selecting subject age and relevant stop count
 
 SELECT
     subject_age,
@@ -140,7 +158,11 @@ gender_stops |>
                                 "male" = "navyblue")) +
   labs(title = "Traffic Stops by Subject Age and Gender in Nashville Dec 2009 - Mar 2019", 
        x = "Subject Age", 
-       y = "Stop Count")
+       y = "Stop Count",
+       alt = "Line graph depicting traffic stops by age, with two series for females 
+       and males respectively, as recorded in Nashville between December 2009 and March 2019.
+       Both genders peak around 25 years of ages, and stop rates gradually sink as 
+       subjects get older.")
   
 
 ```

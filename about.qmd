@@ -2,24 +2,4 @@
 title: "About"
 ---
 
-Hi! My name is Emma. For the sake of anonymity, I'll leave out my last name.
-
-The data visualizations you can find on the website both focus on music... I love music!
-
-My favourite albums right now include the following:
-
--   “little oblivions” by julien baker
-
--   “the 1975 (deluxe version)” by the 1975
-
--   “divinely uninspired to a hellish extent” by lewis capaldi
-
--   “21” by adele
-
--   “the record” by boygenius
-
--   “punisher” by phoebe bridgers
-
--   “home video” by lucy dacus 
-
--   “take the sadness out of saturday night” by bleachers
+Hi! My name is Emma. For the sake of anonymity, I'll leave out my last name. This website showcases some of the data science projects I've worked on this past semester, including various ggplots, SQL, a shiny app, a permutation test, and more!

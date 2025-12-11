@@ -23,12 +23,16 @@ library(tidyverse)
 
 dearabby <- read_csv("https://raw.githubusercontent.com/the-pudding/data/master/dearabby/raw_da_qs.csv")
 
-dearabby1 <- dearabby %>% 
-  mutate(title = str_to_lower(title)) %>% 
-  group_by(year) %>% 
+# using regular expressions to count the occurrence of "mom" and "dad" in different syntactic contexts, grouping by year
+
+dearabby1 <- dearabby |> 
+  mutate(title = str_to_lower(title)) |> 
+  group_by(year) |> 
   summarize(
     mom = sum(str_count(title, "mom*."), na.rm = TRUE), 
     dad = sum(str_count(title, "dad*."), na.rm = TRUE))
+
+# creating a line graph with a series for "mom" and "dad" each
 
 ggplot(dearabby1, aes(year)) +
   geom_line(aes(y = mom, color = "Mom")) +
@@ -37,34 +41,39 @@ ggplot(dearabby1, aes(year)) +
     title = "Mention of Mom and Dad in 'Dear Abby' Column Titles Over Time",
     x = "Year",
     y = "Frequency",
+    alt = "Line graph that compares the mention of 'mom' and 'dad in 'Dear Abby' between 1985 and 2017, with the occurrences of both increasing over time and peaking around 2002."
   )
 
 ```
 
-![]()
-
-This data visualization illustrates the frequency of use of "mom" and "dad" in the Dear Abby letters between 1985 and 2017. The plot demonstrates that both words have been employed more frequently over the course of the 30 years, despite the fact that the number of letters published per year remained constant (approximately one letter per day). Notably, the mention of "mom" and "dad" vary with one another, though "mom" reliably appears more often. The plot might suggest that writers have become more concerned with issues relating to/involving their parents in over the course of the past thirty years.
+This data visualization illustrates the frequency of use of "mom" and "dad" in the Dear Abby letters between 1985 and 2017. The plot demonstrates that the mention of both words has increased over the course of the 30 years, despite the fact that the number of letters published per year remained constant (approximately one letter per day). Notably, the mention of "mom" and "dad" vary with one another, though "mom" reliably appears more often. The plot might suggest that writers have become more concerned with issues relating to/involving their parents in over the course of the past thirty years.
 
 ```{r}
 
-library(tidyverse)
+# using regular expressions to extract desire verbs from six specific word stems, all following "I"
 
-dearabby2 <- dearabby %>%
-  mutate(self_verbs = str_extract_all(question_only, "(?<=i )\\w+")) %>% 
-  unnest(self_verbs) %>%
-  group_by(self_verbs) %>%
-  summarize(count = n()) %>% 
-  filter(str_detect(self_verbs, "(want$|wish$|hope$|pray$|expect$|beg$|require$)")) %>%
-  arrange(count)
+dearabby2 <- dearabby |> 
+  mutate(self_verbs = str_extract_all(question_only, "(?<=i )\\w+")) |> 
+  unnest(self_verbs) |> 
+  group_by(self_verbs) |> 
+  filter(str_detect(self_verbs, "(want.*|wish.*|hope.*|pray.*|expect.*|beg.*)")) |> 
+  filter(!self_verbs %in% c("began", "begin", "hopelessly")) |> 
+  summarize(count = n()) |> 
+  arrange(count) 
 
-ggplot(dearabby2, aes(x = self_verbs, y = count)) +
+# creating a bar plot of the occurrence of each desire verb
+
+ggplot(dearabby2, aes(x = reorder(self_verbs, -count), y = count)) +
   geom_col(fill = "lightblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(
     title = "Mention of Desire Verbs in 'Dear Abby' Questions",
     x = "Frequency of Use",
     y = "Expression of Desire",
+    alt = "Bar graph demonstrating the occurrences of verbs expressing desire (with the stems
+    want, wish, hope, pray, expect, and beg in 'Dear Abby' Questions. 'Want' is most 
+    commonly used, far ahead of 'hope', 'wanted', and 'wish'."
   )
-
 
 ```
 
@@ -72,11 +81,15 @@ This data visualization seeks to model the use of verbs expressing personal desi
 
 ```{r}
 
-dearabby3 <- dearabby %>% 
-  mutate(wants = str_detect(question_only, "\\bi want\\b")) %>% 
-  filter(wants == TRUE) %>% 
-  group_by(year) %>% 
+# using regex to detect the use of "want"
+
+dearabby3 <- dearabby |> 
+  mutate(wants = str_detect(question_only, "\\bi want\\b")) |>  
+  filter(wants == TRUE) |> 
+  group_by(year) |> 
   summarize(want_count = sum(wants))
+
+# creating a scatterplot
 
 ggplot(dearabby3, aes(x = year, y = want_count)) +
   geom_point(color = "deepskyblue3") +
@@ -85,6 +98,7 @@ ggplot(dearabby3, aes(x = year, y = want_count)) +
     title = "Mention of 'Wanting' in 'Dear Abby' Questions Over Time",
     x = "Year",
     y = "Expression of Wants",
+    alt = "Scatterplot showing the mention of 'wanting' in 'Dear Abby' questions between 1985 and 2017. Frequency tends upwards, with the greatest use occurring in 2015."
   )
 
 ```

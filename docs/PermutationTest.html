@@ -228,7 +228,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>In this project, I am examining the TidyTuesday dataset on “<a href="https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17">National Park Visits</a>” and testing the hypothesis that yearly visitor numbers in national parks across the country correlate with the price of gas in that year. The original data consists of three CSV files, including info on national park visitors from 1904 to 2016, state populations, annual gas prices from 1929 to 2015 adjusted for inflation, and locations. In the following analysis, I plan to explore the relationship between national park visitation and gas price, hypothesizing that a higher price might correlate with lower visitor rates, since people might be less motivated to drive and thus spend more money on gas. Of course, this hypothesis will presumably be difficult to demonstrate, due to the broad scope and limited specificity of the data. For my analysis, I plan to compare visitor rates with gas prices from the years 1929 to 2015. I will assign the gas prices adjusted to the 2015 inflation rate to the categories “low” or “high” depending on whether they exceed the threshold of $2.04 (the median of gas prices). Then, I will calculate the mean number of total visitors to all national parks for high price years and low gas price years, and plot the results on a bar graph. Ultimately, I will generate a null sampling distribution in order to examine to what extent the difference between high and low price years is likely due to the gas price variable, or whether the results are likely to be random.</p>
+<p>In this project, I am examining the TidyTuesday dataset on “<a href="https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17">National Park Visits</a>” and examining whether yearly visitor numbers in national parks across the country correlate with the price of gas in that year. In this context, <strong>I am testing the hypothesis that gas price plays a role in an individual’s decision-making process when it comes to choosing to visit a national park</strong>. The original data consists of three CSV files, including info on national park visitors from 1904 to 2016, state populations, annual gas prices from 1929 to 2015 adjusted for inflation, and locations. In the following analysis, I plan to explore the relationship between national park visitation and gas price, hypothesizing that a higher price influences individuals’ decision to visit a national park, since people might be less motivated to drive and te spend more money on gas.</p>
+<p>For my analysis, I plan to compare visitor rates with gas prices from the years 1929 to 2015. I will assign the gas prices adjusted to the 2015 inflation rate to the categories “low” or “high” depending on whether they exceed the threshold of $2.04 (the median of gas prices). Then, I will calculate the mean number of total visitors to all national parks for high price years and low gas price years, and plot the results on a bar graph. Ultimately, I will generate a null sampling distribution in order to examine to what extent the difference between high and low price years is likely due to the gas price variable, or whether the results are likely to be random.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -250,31 +251,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#cleaning the gas price dataframe</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># gas_price |&gt; </span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   summarize(median = median(gas_constant))</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>gas_price_revised <span class="ot">&lt;-</span> gas_price <span class="sc">|&gt;</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gas_price =</span> <span class="fu">case_when</span>(</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    gas_constant <span class="sc">&lt;</span> <span class="fl">2.04</span> <span class="sc">~</span> <span class="st">"low"</span>,</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"high"</span>,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, gas_price) <span class="sc">|&gt;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="st">"1929"</span>, year <span class="sc">&lt;=</span> <span class="st">"2015"</span>)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">#joining both dataframes</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>joined_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(park_visits_revised, gas_price_revised, <span class="at">by =</span> <span class="st">"year"</span>)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">#initial result calculations &amp; graphing</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>means_calculated <span class="ot">&lt;-</span> joined_data <span class="sc">|&gt;</span> </span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gas_price) <span class="sc">|&gt;</span> </span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">ave_visitors =</span> <span class="fu">mean</span>(total_visitors))</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> means_calculated, <span class="fu">aes</span>(<span class="at">x =</span> gas_price, <span class="at">y =</span> ave_visitors)) <span class="sc">+</span> </span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"cornflowerblue"</span>) <span class="sc">+</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> ave_visitors), <span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Difference in Yearly National Park Visitors Based on Annual Gas Price"</span>, <span class="at">x =</span> <span class="st">"Annual Gas Price"</span>, <span class="at">y =</span> <span class="st">"Yearly National Park Visitors"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>gas_price_revised <span class="ot">&lt;-</span> gas_price <span class="sc">|&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gas_price =</span> <span class="fu">case_when</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    gas_constant <span class="sc">&lt;</span> <span class="fl">2.04</span> <span class="sc">~</span> <span class="st">"low"</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"high"</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, gas_price) <span class="sc">|&gt;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="st">"1929"</span>, year <span class="sc">&lt;=</span> <span class="st">"2015"</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">#joining both dataframes</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>joined_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(park_visits_revised, gas_price_revised, <span class="at">by =</span> <span class="st">"year"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">#initial result calculations &amp; graphing</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(joined_data, <span class="fu">aes</span>(<span class="at">x =</span> gas_price, <span class="at">y =</span> total_visitors, <span class="at">fill =</span> gas_price)) <span class="sc">+</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Yearly National Park Visitors by Gas Price Category"</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Annual Gas Price"</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Yearly National Park Visitors"</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">alt =</span> <span class="st">"Box plot showing the distribution of yearly national park visitors in the US</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="st">    depending on high or low gas prices. The median visitor number in high gas price </span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="st">    years is significantly lower than that in low gas price years."</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"cornflowerblue"</span>, <span class="st">"lightblue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -310,7 +311,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> perm_ave_diff)) <span class="sc">+</span> </span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"cornflowerblue"</span>) <span class="sc">+</span> </span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> obs_ave_diff), <span class="at">color =</span> <span class="st">"deeppink4"</span>) <span class="sc">+</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Null Sampling Distribution of Mean Difference in Visitors"</span>, <span class="at">x =</span> <span class="st">"Difference in Means"</span>, <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Null Sampling Distribution of Mean Difference in Visitors"</span>, </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Difference in Means"</span>, </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">alt =</span> <span class="st">"Null sampling distribution histogram of the mean difference in yearly </span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="st">       national park visitors between low and high gas price years. The observed </span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="st">       average difference in means is on the right tail of the distribution, with the </span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="st">       p-value equalling 0.008"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -333,7 +340,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 1   0.00857</code></pre>
 </div>
 </div>
-<p>The plot above represents a null sampling distribution created from a 700 permutations of yearly visitor totals being randomly assigned to the high or low gas price condition and the difference in means between the two conditions being calculated. When the difference of ~60 million - as calculated from the observed data - was plotted is on the null sampling distribution, it becomes clear that the observed effect is somewhat unlikely to be randomly caused. In fact, the p-value of 0.008 calculated in the data frame above suggests that there is moderate evidence against the null model. As such, we could accept the hypothesis that years with higher gas prices have seen lower national park attendance in the past. However, one must of course be cautious about not reading too much into these results, since the data is highly generalized, and a variety of other factors (such as economic stability, national park popularity, and willingness to go on trips) may have played a role in the data.</p>
+<p>The plot above represents a null sampling distribution created from a 700 permutations of yearly visitor totals being randomly assigned to the high or low gas price condition and the difference in means between the two conditions being calculated. When the difference of ~60 million - as calculated from the observed data - was plotted is on the null sampling distribution, it becomes clear that the observed effect is somewhat unlikely to be randomly caused. In fact, the p-value of 0.008 calculated in the data frame above suggests that there is moderate evidence against the null model.</p>
+<p>As such, we could accept the hypothesis that years with higher gas prices are likely to have played a role in individuals’ decisions to visit a national park. However, one must of course be cautious about not reading too much into these results, since the data is highly generalized, and a variety of other factors (such as economic stability, national park popularity, and willingness to go on trips) may have played a role in the data.</p>
 <p>Source:</p>
 <p>Tidy Tuesday. (2019, September 17).&nbsp;<em>National Park Visits</em>. GitHub. <a href="https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17" class="uri">https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-09-17</a>. Originally sourced from <a href="https://data.world/inform8n/us-national-parks-visitation-1904-2016-with-boundaries">dataisplural/data.world</a>.&nbsp;</p>
 
